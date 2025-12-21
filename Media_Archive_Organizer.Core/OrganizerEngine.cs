@@ -31,7 +31,7 @@ public class OrganizerEngine
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase) 
     { 
         ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".tif", ".png",
-        ".heic", ".cr2", ".nef", ".arw", ".dng" // RAW & HEIC support
+        ".heic", ".cr2", ".nef", ".arw", ".dng", ".webm" // RAW & HEIC support
     };
     
     private static readonly HashSet<string> VideoExtensions = new(StringComparer.OrdinalIgnoreCase) 
