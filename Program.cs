@@ -8,7 +8,7 @@ class Program
     static void Main(string[] args)
     {
         Console.WriteLine("=========================================");
-        Console.WriteLine("     Media Archive Organizer v1.01       ");
+        Console.WriteLine("     Media Archive Organizer v1.02       ");
         Console.WriteLine("=========================================");
         Console.WriteLine();
         
