@@ -414,17 +414,13 @@ class DonateTab(ctk.CTkFrame):
         # Venmo: Deep link or web
         link_venmo = "https://venmo.com/?txn=pay&recipients=jscheema@gmail.com&note=MediaArchiveOrganizer"
         
-        # Zelle: Just open site (no standard web link for prepopulated email)
-        link_zelle = "https://www.zellepay.com/how-it-works"
+
         
         ctk.CTkButton(self.btn_frame, text="PayPal", width=120, height=40, fg_color="#0070BA", 
                       command=lambda: webbrowser.open(link_paypal)).grid(row=0, column=0, padx=10)
                       
         ctk.CTkButton(self.btn_frame, text="Venmo", width=120, height=40, fg_color="#008CFF", 
                       command=lambda: webbrowser.open(link_venmo)).grid(row=0, column=1, padx=10)
-                      
-        ctk.CTkButton(self.btn_frame, text="Zelle", width=120, height=40, fg_color="#6D1ED4", 
-                      command=lambda: webbrowser.open(link_zelle)).grid(row=0, column=2, padx=10)
                       
         ctk.CTkLabel(self.frame, text="Thank you for your support!", font=("Arial", 12, "italic"), text_color="#E04F5F").pack(pady=20)
 
