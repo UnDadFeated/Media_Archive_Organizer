@@ -12,7 +12,7 @@ It sorts your photos and videos into a structured `Year/Year-Month` format and u
 **Language**: Python (v2.0 Rewrite)
 
 ## New Features (v2.1)
-- **AI Face Scanning**:
+- **AI Object Scanning**:
   - **No People**: Automatically identify photos *without* people (Landscapes, Objects).
   - **Keep Animals**: Option to keep photos of pets (Cats, Dogs, etc.) in the "No People" list using object detection.
 - **High Performance**:
