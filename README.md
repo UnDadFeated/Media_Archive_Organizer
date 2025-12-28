@@ -6,7 +6,7 @@
 
 ## Overview
 Media Archive Organizer is a powerful tool designed to help you organize chaos.
-It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Face Detection** to separate family photos from landscapes, documents, and memes.
+It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Object Scanning** to separate family photos from landscapes, documents, and memes.
 
 **Developer**: [Undadfeated](https://github.com/Undadfeated)
 **Language**: Python (v2.0 Rewrite)
@@ -28,7 +28,7 @@ It sorts your photos and videos into a structured `Year/Year-Month` format and u
 - **Dry Run**: Preview changes before moving any files.
 - **Start**: Sorts files into `YYYY\YYYY-MM` folders based on EXIF/Metadata.
 
-### 2. AI Face Scanner Tab
+### 2. AI Object Scanner Tab
 - **Goal**: Separate "Good Shots" (Landscapes/Art) from "People Shots" (Privacy/Personal).
 - **Keep Animals**: 
   - **Checked**: Pets are excluded along with people.
