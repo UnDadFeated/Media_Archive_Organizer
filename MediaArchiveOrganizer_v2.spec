@@ -3,7 +3,7 @@ from PyInstaller.utils.hooks import collect_all
 
 datas = [('src', 'src')]
 binaries = []
-hiddenimports = ['piexif', 'PIL', 'cv2']
+hiddenimports = []
 tmp_ret = collect_all('mediapipe')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('customtkinter')
@@ -44,5 +44,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['app_icon.ico'],
 )

@@ -62,8 +62,8 @@ class ScannerEngine:
             else:
                 face_engine = self._init_mediapipe_face()
                 
-            # If keep_animals is True (User wants to keep them), we don't need to detect them. We only detect to EXCLUDE.
-            if not keep_animals:
+            # If keep_animals is True (Checked), User wants to EXCLUDE animals (per new request).
+            if keep_animals:
                 animal_engine = self._init_animal_detector()
                 self.logger("Animal Filter Enabled (Excluding Animals).")
             else:
@@ -149,18 +149,11 @@ class ScannerEngine:
                 is_excluded = True
             else:
                 # No human. Check animal?
-                # If keep_animals is TRUE: We don't care if there is an animal. It's a "keeper".
-                # If keep_animals is FALSE: We MUST detect animal. If animal found -> Exclude.
+                # If keep_animals is TRUE (Checked): We want to EXCLUDE animals.
+                # If keep_animals is FALSE (Unchecked): We IGNORE animals (Keep them).
                 
-                if not keep_animals:
+                if keep_animals:
                     # We need to detect animals here
-                    # Lazy init animal engine if not passed? No, initialized above.
-                    if not animal_engine:
-                        # Lazy load or assume we only load if needed.
-                        # We need to load it if keep_animals is FALSE.
-                        # Wait, code above loaded if keep_animals is TRUE. ERROR in logic above.
-                        pass
-                    
                     if animal_engine:
                          if self._detect_animal(animal_engine, image):
                              is_excluded = True

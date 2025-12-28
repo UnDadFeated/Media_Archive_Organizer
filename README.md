@@ -31,8 +31,8 @@ It sorts your photos and videos into a structured `Year/Year-Month` format and u
 ### 2. AI Face Scanner Tab
 - **Goal**: Separate "Good Shots" (Landscapes/Art) from "People Shots" (Privacy/Personal).
 - **Keep Animals**: 
-  - **Checked**: Pets stay in your "No People" (Keep) list.
-  - **Unchecked**: Pets are excluded along with people.
+  - **Checked**: Pets are excluded along with people.
+  - **Unchecked**: Pets stay in your "No People" (Keep) list.
 - **Start Scan**: Runs the AI.
 - **Review**: Check the lists, verify previews.
 - **Move Files**: Moves the "No People" files to a `No_People` subfolder for easy archiving.
