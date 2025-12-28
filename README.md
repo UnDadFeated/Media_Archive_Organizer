@@ -2,7 +2,7 @@
 
 **Automated Media Organization & AI Cleanup Tool**
 
-![Icon](app_icon.png)
+![Icon](app_icon.png?raw=true&v=2.1)
 
 ## Overview
 Media Archive Organizer is a powerful tool designed to help you organize chaos.
