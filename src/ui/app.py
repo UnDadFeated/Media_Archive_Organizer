@@ -3,6 +3,7 @@ from ui.tabs import OrganizerTab, AIScannerTab, DonateTab
 import sys
 import os
 from core.logger import setup_logger
+from version import __version__, APP_NAME
 
 # Ensure src is in path logic if running raw
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -16,7 +17,7 @@ class App(ctk.CTk):
         self.logger = setup_logger()
         self.logger.info("Initializing Main App Window")
 
-        self.title("Media Archive Organizer v2.0")
+        self.title(f"{APP_NAME} {__version__}")
         self.geometry("1000x550")
         
         # Grid Layout
@@ -48,7 +49,7 @@ class App(ctk.CTk):
         # Log Area (Bottom) - Shared
         self.log_text = ctk.CTkTextbox(self, height=100, font=("Consolas", 12))
         self.log_text.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
-        self.log("Welcome to Media Archive Organizer v2.0 (Python Edition)")
+        self.log(f"Welcome to {APP_NAME} {__version__} (Python Edition)")
         self.log("Ready.")
 
     def log(self, message):

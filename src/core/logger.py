@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from version import __version__
 
 def setup_logger():
     # Reset handlers if re-initialized
@@ -20,6 +21,6 @@ def setup_logger():
     # console.setLevel(logging.DEBUG)
     # logging.getLogger('').addHandler(console)
     
-    logging.info(f"=== Application Started (v2.1 NoLog) ===")
+    logging.info(f"=== Application Started ({__version__} NoLog) ===")
     
     return logging.getLogger('MediaOrganizer')
