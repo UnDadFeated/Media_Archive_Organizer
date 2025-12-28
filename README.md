@@ -1,33 +1,65 @@
-# Media Archive Organizer 📸🎬
+# Media Archive Organizer (v2.1)
 
-A robust, high-performance tool to organize your photo and video collections by **Original Creation Date**.
+**Automated Media Organization & AI Cleanup Tool**
 
-![Icon](Media_Archive_Organizer.UI/app_icon.ico)
+![Icon](app_icon.png)
 
-## Features
-- **Logic 2.0 Engine**:
-  - **Smart Deduplication**: Checks MD5 content hashes to skip identifying files and rename name-collisions.
-  - **Broad Format Support**: `.jpg`, `.png`, `.heic`, `.mov`, `.mp4` + **RAW** (`.cr2`, `.nef`, `.arw`).
-  - **Parallel Processing**: Multi-threaded scanning for blazing speed.
-  - **Dry Run Mode**: Simulate the organization before moving a single file.
-- **Modern GUI**: Dark-themed WPF interface with real-time logging.
-- **Safety**:
-  - **Timezone Fix**: Corrects QuickTime UTC dates to Local Time.
-  - **Fallback**: Uses 'Date Modified' if Metadata is missing.
+## Overview
+Media Archive Organizer is a powerful tool designed to help you organize chaos.
+It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Face Detection** to separate family photos from landscapes, documents, and memes.
 
-## Installation
-1.  Download the latest release.
-2.  Run `Media_Archive_Organizer.UI.exe`.
+**Developer**: [Undadfeated](https://github.com/Undadfeated)
+**Language**: Python (v2.0 Rewrite)
+
+## New Features (v2.1)
+- **AI Face Scanning**:
+  - **No People**: Automatically identify photos *without* people (Landscapes, Objects).
+  - **Keep Animals**: Option to keep photos of pets (Cats, Dogs, etc.) in the "No People" list using object detection.
+- **High Performance**:
+  - **Multi-threaded Logic**: Parallel image loading for maximum SSD/HDD throughput.
+  - **GPU Acceleration**: OpenCL support for compatible cards via OpenCV.
+- **Privacy First**: All processing is done **Locally** on your device. No cloud uploads.
 
 ## Usage
-1.  Select your Source Folder (e.g., your SD card or "Unsorted" folder).
-2.  Check **Dry Run** to see what will happen.
-3.  Click **Start Organization**.
-4.  Files will be moved to `Photos/yyyy-MM` and `Videos/yyyy-MM`.
 
-## Build from Source
-**Requirements:** .NET 8 SDK
-```powershell
-dotnet restore
-dotnet build
+### 1. Organizer Tab
+- **Source Folder**: Select your messy folder.
+- **Mode**: Choose "Photos", "Videos", or both.
+- **Dry Run**: Preview changes before moving any files.
+- **Start**: Sorts files into `YYYY\YYYY-MM` folders based on EXIF/Metadata.
+
+### 2. AI Face Scanner Tab
+- **Goal**: Separate "Good Shots" (Landscapes/Art) from "People Shots" (Privacy/Personal).
+- **Keep Animals**: 
+  - **Checked**: Pets stay in your "No People" (Keep) list.
+  - **Unchecked**: Pets are excluded along with people.
+- **Start Scan**: Runs the AI.
+- **Review**: Check the lists, verify previews.
+- **Move Files**: Moves the "No People" files to a `No_People` subfolder for easy archiving.
+
+## Installation
+No installation required. Just run the standalone executable.
+
+1. Go to **Releases**.
+2. Download `MediaArchiveOrganizer_v2.exe`.
+3. Run it.
+
+## For Developers (Building from Source)
+Requirements: Python 3.11+
+```bash
+pip install -r requirements.txt
+python launcher.py
 ```
+
+### Build Executable
+```bash
+build_exe.bat
+```
+
+## Credits
+- **MediaPipe** (Google) for AI models.
+- **OpenCV** for image processing.
+- **CustomTkinter** for the UI.
+
+---
+*Coffee is always appreciated!* ☕

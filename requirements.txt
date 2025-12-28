@@ -1,0 +1,7 @@
+customtkinter
+mediapipe
+opencv-python
+Pillow
+piexif
+send2trash
+pyinstaller
