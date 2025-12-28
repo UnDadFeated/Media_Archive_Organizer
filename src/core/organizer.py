@@ -8,6 +8,10 @@ import piexif
 class OrganizerEngine:
     def __init__(self, logger_callback: Optional[Callable[[str], None]] = None):
         self.logger = logger_callback or (lambda x: print(x))
+        self.cancel_flag = False
+
+    def cancel(self):
+        self.cancel_flag = True
 
     def get_date_taken(self, file_path: str) -> Optional[datetime]:
         """
@@ -36,25 +40,51 @@ class OrganizerEngine:
         except:
             return None
 
-    def organize(self, source_dir: str, dry_run: bool = True):
+    def count_files(self, source_dir: str, valid_exts: set) -> int:
+        count = 0
+        for root, _, files in os.walk(source_dir):
+            if self.cancel_flag: return 0
+            for file in files:
+                if os.path.splitext(file)[1].lower() in valid_exts:
+                    count += 1
+        return count
+
+    def organize(self, source_dir: str, dry_run: bool = True, progress_callback=None):
         if not os.path.exists(source_dir):
             self.logger("Source directory does not exist.")
             return
 
+        self.cancel_flag = False
+        valid_exts = {'.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi'}
+        
+        self.logger("Counting files...")
+        if progress_callback: progress_callback(0, 0)
+        
+        total_files = self.count_files(source_dir, valid_exts)
+        self.logger(f"Found {total_files} media files.")
+        
         self.logger(f"Starting Organization (Dry Run: {dry_run})...")
         
         files_moved = 0
+        files_processed = 0
         duplicates_found = 0
         
-        # Basic extensions
-        valid_exts = {'.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi'}
-        
         for root, _, files in os.walk(source_dir):
+            if self.cancel_flag:
+                self.logger("Operation Cancelled.")
+                break
+                
             for file in files:
+                if self.cancel_flag: break
+                
                 ext = os.path.splitext(file)[1].lower()
                 if ext not in valid_exts:
                     continue
                     
+                files_processed += 1
+                if progress_callback:
+                    progress_callback(files_processed, total_files)
+
                 full_path = os.path.join(root, file)
                 date_obj = self.get_date_taken(full_path)
                 

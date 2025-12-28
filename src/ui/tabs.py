@@ -62,8 +62,14 @@ class OrganizerTab(ctk.CTkFrame):
         
         ctk.CTkLabel(self.frame_action, text="Recommmended for first run.", text_color="gray", font=("Arial", 11)).pack(anchor="w", padx=55, pady=0)
 
-        self.btn_start = ctk.CTkButton(self.frame_action, text="Start Organization", height=40, fg_color="#007ACC", hover_color="#005A9E", command=self.start_organize)
-        self.btn_start.pack(fill="x", padx=20, pady=(30, 0))
+        self.button_frame = ctk.CTkFrame(self.frame_action, fg_color="transparent")
+        self.button_frame.pack(fill="x", padx=20, pady=(30, 0))
+
+        self.btn_start = ctk.CTkButton(self.button_frame, text="Start Organization", height=40, fg_color="#007ACC", hover_color="#005A9E", command=self.start_organize)
+        self.btn_start.pack(side="left", fill="x", expand=True, padx=(0, 5))
+
+        self.btn_stop = ctk.CTkButton(self.button_frame, text="Stop", height=40, width=60, fg_color="#D32F2F", hover_color="#B71C1C", state="disabled", command=self.stop_organize)
+        self.btn_stop.pack(side="right", padx=(5, 0))
 
         # Progress
         self.progress_bar = ctk.CTkProgressBar(self.frame_action)
@@ -78,6 +84,11 @@ class OrganizerTab(ctk.CTkFrame):
             self.entry_path.delete(0, "end")
             self.entry_path.insert(0, path)
 
+    def stop_organize(self):
+        self.engine.cancel()
+        self.btn_stop.configure(state="disabled")
+        self.lbl_progress.configure(text="Stopping...")
+
     def start_organize(self):
         path = self.entry_path.get()
         if not path or not os.path.isdir(path):
@@ -85,7 +96,8 @@ class OrganizerTab(ctk.CTkFrame):
             return
             
         dry_run = bool(self.chk_dry_run.get())
-        self.btn_start.configure(state="disabled", text="Working...")
+        self.btn_start.configure(state="disabled")
+        self.btn_stop.configure(state="normal")
         self.progress_bar.set(0)
         self.lbl_progress.configure(text="Scanning files...")
         
@@ -94,16 +106,23 @@ class OrganizerTab(ctk.CTkFrame):
             self.after(0, lambda: self.update_progress(current, total))
 
         def run():
-            self.engine.organize(path, dry_run=dry_run, progress_callback=on_progress)
-            self.after(0, lambda: self.btn_start.configure(state="normal", text="Start Organization"))
-            self.after(0, lambda: self.lbl_progress.configure(text="Finished."))
+            try:
+                self.engine.organize(path, dry_run=dry_run, progress_callback=on_progress)
+            finally:
+                self.after(0, self.on_finished)
             
         threading.Thread(target=run, daemon=True).start()
+
+    def on_finished(self):
+        self.btn_start.configure(state="normal", text="Start Organization")
+        self.btn_stop.configure(state="disabled")
+        self.lbl_progress.configure(text="Finished.")
 
     def update_progress(self, current, total):
         if total > 0:
             self.progress_bar.set(current / total)
             self.lbl_progress.configure(text=f"Organizing... {current}/{total}")
+
 
 class AIScannerTab(ctk.CTkFrame):
     def __init__(self, master, log_callback, file_logger):
