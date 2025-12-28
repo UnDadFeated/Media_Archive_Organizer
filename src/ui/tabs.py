@@ -180,7 +180,7 @@ class AIScannerTab(ctk.CTkFrame):
         self.content_frame.grid_rowconfigure(1, weight=1)
 
         # Left List (Keep)
-        ctk.CTkLabel(self.content_frame, text="FLAGGED (No People)", text_color="#4CAF50", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(self.content_frame, text="FLAGGED (No People/Files to move)", text_color="#4CAF50", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
         
         self.list_keep = ctk.CTkScrollableFrame(self.content_frame, label_text="Files (0)")
         self.list_keep.grid(row=1, column=0, sticky="nsew", padx=(0,5))
