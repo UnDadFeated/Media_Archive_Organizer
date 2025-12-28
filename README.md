@@ -44,6 +44,8 @@ No installation required. Just run the standalone executable.
 2. Download `MediaArchiveOrganizer_v2.exe`.
 3. Run it.
 
+> **Note on File Size (~87MB)**: The executable is large because it is a fully standalone app. It bundles the entire **Python 3.11 Runtime**, **OpenCV**, **MediaPipe (TensorFlow Lite)**, and the **AI Models** inside a single file. You do not need to install Python or any dependencies to run it.
+
 ## For Developers (Building from Source)
 Requirements: Python 3.11+
 ```bash
