@@ -1,4 +1,4 @@
-# Media Archive Organizer (v2.3.4)
+# Media Archive Organizer (v2.4.0)
 
 **Automated Media Organization & AI Cleanup Tool**
 
@@ -9,16 +9,15 @@ Media Archive Organizer is a powerful tool designed to help you organize chaos.
 It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Scan** to separate family photos from landscapes, documents, and memes.
 
 **Developer**: [Undadfeated](https://github.com/Undadfeated)
-**Language**: Python (v2.3.4 Update)
+**Language**: Python (v2.4.0 Update)
 
-## New Features (v2.3.4)
-- **Maintenance**: Code cleanup and import optimizations.
-- **Critial Fixes (v2.3.3)**:
-  - **MediaPipe Fix**: Resolved runtime crash by migrating to MediaPipe Tasks API.
-  - **Logic Fix**: Clarified "Keeping Animals" log messages.
-- **AI Scan UI Update**:
-  - **KEEP (Left)**: Photos with **People/Animals** are kept safe in the left column.
-  - **MOVE (Right)**: Photos with **Objects/Landscapes** (No People) are moved to the right column for cleanup.
+## New Features (v2.4.0)
+- **GPU Default**: Scanner now exclusively uses **OpenCV (OpenCL/GPU)** for maximum performance and accuracy.
+- **UI Polish**:
+  - **Resize Scan**: Image preview now scales with window size.
+  - **Simplified**: Removed confusing CPU/GPU options.
+  - **Grip**: Added visual resize grip to bottom-right.
+- **Maintenance**: Removed legacy MediaPipe Face detection code.
   - **Keep Animals**: Option to keep photos of pets (Cats, Dogs, etc.) in the "No People" list using object detection.
 - **High Performance**:
   - **Multi-threaded Logic**: Parallel image loading for maximum SSD/HDD throughput.
