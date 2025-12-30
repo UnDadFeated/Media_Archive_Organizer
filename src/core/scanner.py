@@ -65,9 +65,9 @@ class ScannerEngine:
             # If keep_animals is True (Checked), User wants to EXCLUDE animals (per new request).
             if keep_animals:
                 animal_engine = self._init_animal_detector()
-                self.logger("Animal Filter Enabled (Excluding Animals).")
+                self.logger("Animal Filter Enabled (Keeping Animals).")
             else:
-                self.logger("Animal Filter Disabled (Keeping Animals).")
+                self.logger("Animal Filter Disabled.")
                 
         except Exception as e:
             self.logger(f"Model Init Failed: {e}")
