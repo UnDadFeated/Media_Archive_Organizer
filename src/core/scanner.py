@@ -30,7 +30,7 @@ class ScannerEngine:
     def cancel(self):
         self.stop_event.set()
 
-    def run_scan(self, directory: str, include_subfolders: bool = True, use_gpu: bool = False, keep_animals: bool = False):
+    def run_scan(self, directory: str, include_subfolders: bool = True, keep_animals: bool = False):
         if not os.path.exists(directory):
             self.logger(f"Error: Directory not found: {directory}")
             return
@@ -52,17 +52,15 @@ class ScannerEngine:
                 break
 
         total = len(all_files)
-        self.logger(f"Found {total} images. Starting Pipeline ({'GPU' if use_gpu else 'CPU'})...")
+        # Always GPU/OpenCV for Face
+        self.logger(f"Found {total} images. Starting Pipeline (GPU/OpenCV)...")
         
         # Models
         face_engine = None
         animal_engine = None
         
         try:
-            if use_gpu:
-                face_engine = self._init_opencv_face()
-            else:
-                face_engine = self._init_mediapipe_face()
+            face_engine = self._init_opencv_face()
                 
             # If keep_animals is True (Checked), User wants to EXCLUDE animals (per new request).
             if keep_animals:
@@ -110,13 +108,10 @@ class ScannerEngine:
             
             f_path, image = item
             
-            # 1. Face Detect
+            # 1. Face Detect (OpenCV)
             has_face = False
             try:
-                if use_gpu:
-                    has_face = self._detect_face_opencv(face_engine, image)
-                else:
-                    has_face = self._detect_face_mediapipe(face_engine, image)
+                has_face = self._detect_face_opencv(face_engine, image)
             except: pass
 
             # 2. Logic
@@ -124,36 +119,8 @@ class ScannerEngine:
             
             if has_face:
                 is_excluded = True
-            elif keep_animals and animal_engine:
-                # No face, checks for animal to KEEP
-                # If Animal -> keep (so NOT excluded)
-                # If No Animal -> keep
-                # Wait, User said: "exclude photos with animals... give option to move the ones with no people, or animals"
-                # Request: "add a checkbox for 'keep animals' before scan"
-                # Interpretation:
-                # Default (Unchecked): Animals -> Excluded.
-                # Checked: Animals -> Kept (No People folder).
-                
-                # So if !KeepAnimals:
-                #   We need to detect animals and EXCLUDE them.
-                # If KeepAnimals:
-                #   We ignore animals (they fall into 'No People' bucket).
-                pass
-            
-            # Correcting Logic based on Request:
-            # "now, also exlude photos with animals, just give opton to move the ones with no people, or animals."
-            # "add a checkbox for "keep animals" before scan"
-            
-            # Base Propositon: "No People" scan keeps things with NO humans.
-            # Now we add "No Animals" constraint.
-            
-            if has_face:
-                is_excluded = True
             else:
                 # No human. Check animal?
-                # If keep_animals is TRUE (Checked): We want to EXCLUDE animals.
-                # If keep_animals is FALSE (Unchecked): We IGNORE animals (Keep them).
-                
                 if keep_animals:
                     # We need to detect animals here
                     if animal_engine:
@@ -169,9 +136,9 @@ class ScannerEngine:
             self._report_progress(processed_count, total, start_time)
 
         # Cleanup
-        if not use_gpu and face_engine: face_engine.close()
-        # Animal engine (MediaPipe Task) might need close? It's an ImageClassifier usually or ObjectDetector.
-        # We will implement _init properly.
+        if face_engine: 
+             # FaceDetectorYN doesn't strictly need close, but good practice if wrapper changes
+             pass
 
         if self.stop_event.is_set():
             self.logger("Scan Cancelled.")
@@ -191,20 +158,6 @@ class ScannerEngine:
         detector.setInputSize((w, h))
         _, faces = detector.detect(image)
         return faces is not None
-
-    def _init_mediapipe_face(self):
-        # MediaPipe Tasks API
-        model_path = self._get_model_path('blaze_face_short_range.tflite')
-        base_options = python.BaseOptions(model_asset_path=model_path)
-        options = vision.FaceDetectorOptions(base_options=base_options, min_detection_confidence=0.5)
-        return vision.FaceDetector.create_from_options(options)
-
-    def _detect_face_mediapipe(self, detector, image):
-        img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
-        
-        detection_result = detector.detect(mp_image)
-        return len(detection_result.detections) > 0
 
     def _init_animal_detector(self):
         # MediaPipe Tasks
