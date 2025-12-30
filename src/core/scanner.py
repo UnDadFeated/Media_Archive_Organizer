@@ -2,6 +2,8 @@ import os
 import sys
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 import threading
 import time
 from typing import List, Callable, Optional
@@ -192,16 +194,12 @@ class ScannerEngine:
 
     def _init_mediapipe_face(self):
         # MediaPipe Tasks API
-        from mediapipe.tasks import python
-        from mediapipe.tasks.python import vision
-        
         model_path = self._get_model_path('blaze_face_short_range.tflite')
         base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.FaceDetectorOptions(base_options=base_options, min_detection_confidence=0.5)
         return vision.FaceDetector.create_from_options(options)
 
     def _detect_face_mediapipe(self, detector, image):
-        import mediapipe as mp
         img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
         
@@ -210,10 +208,6 @@ class ScannerEngine:
 
     def _init_animal_detector(self):
         # MediaPipe Tasks
-        import mediapipe as mp
-        from mediapipe.tasks import python
-        from mediapipe.tasks.python import vision
-        
         model_path = self._get_model_path('efficientdet_lite0.tflite')
         base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.ObjectDetectorOptions(base_options=base_options, score_threshold=0.4, max_results=5)
@@ -221,7 +215,6 @@ class ScannerEngine:
 
     def _detect_animal(self, detector, image):
         # Returns True if Cat, Dog, Bird etc.
-        import mediapipe as mp
         
         # Convert to MP Image
         img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
