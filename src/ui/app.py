@@ -30,7 +30,7 @@ class App(ctk.CTk):
         self.tab_view.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
         self.tab_org = self.tab_view.add("Media Organizer")
-        self.tab_ai = self.tab_view.add("AI Objects Scanner")
+        self.tab_ai = self.tab_view.add("AI Scan")
         self.tab_donate = self.tab_view.add("Donate")
 
         # Init Tabs

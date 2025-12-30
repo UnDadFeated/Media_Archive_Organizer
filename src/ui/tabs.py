@@ -180,7 +180,8 @@ class AIScannerTab(ctk.CTkFrame):
         self.content_frame.grid_rowconfigure(1, weight=1)
 
         # Left List (Keep)
-        ctk.CTkLabel(self.content_frame, text="FLAGGED (No People/Files to move)", text_color="#4CAF50", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
+        # Left List (Keep - Visual Name, actually contains Excluded/People files)
+        ctk.CTkLabel(self.content_frame, text="KEEP (People/Animals)", text_color="#4CAF50", font=("Arial", 12, "bold")).grid(row=0, column=0, sticky="w")
         
         self.list_keep = ctk.CTkScrollableFrame(self.content_frame, label_text="Files (0)")
         self.list_keep.grid(row=1, column=0, sticky="nsew", padx=(0,5))
@@ -194,7 +195,8 @@ class AIScannerTab(ctk.CTkFrame):
         self.btn_mv_left.pack(pady=5)
 
         # Right List (Excluded)
-        ctk.CTkLabel(self.content_frame, text="EXCLUDED (People)", text_color="#F44336", font=("Arial", 12, "bold")).grid(row=0, column=2, sticky="w")
+        # Right List (Excluded - Visual Name, actually contains Keep/NoPeople files)
+        ctk.CTkLabel(self.content_frame, text="MOVE (Other)", text_color="#F44336", font=("Arial", 12, "bold")).grid(row=0, column=2, sticky="w")
         self.list_exclude = ctk.CTkScrollableFrame(self.content_frame, label_text="Files (0)")
         self.list_exclude.grid(row=1, column=2, sticky="nsew", padx=(5,0))
 
@@ -214,7 +216,7 @@ class AIScannerTab(ctk.CTkFrame):
         self.progress.set(0)
         
         # Move Files Button (Far Right)
-        self.btn_move_files = ctk.CTkButton(self.footer, text="Move 'No People' Files", state="disabled", command=self.move_files_action)
+        self.btn_move_files = ctk.CTkButton(self.footer, text="Move Files (Right Col)", state="disabled", command=self.move_files_action)
         self.btn_move_files.pack(side="right", padx=10, pady=5)
 
         # Cancel Button (Next to Move Files)
@@ -354,11 +356,16 @@ class AIScannerTab(ctk.CTkFrame):
                                   command=lambda f=f, idx=i, ln=list_name: self.select_file(f, idx, ln))
                 btn.pack(fill="x", pady=1)
 
-        add_item(self.list_keep, self.keep_files, "keep")
-        add_item(self.list_exclude, self.exclude_files, "exclude")
+        # VISUAL SWAP:
+        # Left List (self.list_keep UI) gets PREVIOUSLY RIGHT DATA (self.exclude_files - People)
+        # Right List (self.list_exclude UI) gets PREVIOUSLY LEFT DATA (self.keep_files - No People)
         
-        self.list_keep.configure(label_text=f"Files ({len(self.keep_files)})")
-        self.list_exclude.configure(label_text=f"Files ({len(self.exclude_files)})")
+        # We use list_name identifiers that match the actual data list they represent, to make move_item easier.
+        add_item(self.list_keep, self.exclude_files, "exclude_data") 
+        add_item(self.list_exclude, self.keep_files, "keep_data")
+        
+        self.list_keep.configure(label_text=f"Files ({len(self.exclude_files)})")
+        self.list_exclude.configure(label_text=f"Files ({len(self.keep_files)})")
 
     def select_file(self, f, idx, list_name):
         self.selected_item = (list_name, idx, f)
@@ -375,16 +382,23 @@ class AIScannerTab(ctk.CTkFrame):
         if not self.selected_item: return
         lname, idx, f = self.selected_item
         
-        if direction == "right" and lname == "keep":
-            if f in self.keep_files:
-                self.keep_files.remove(f)
-                self.exclude_files.append(f)
-                self.refresh_lists()
-        elif direction == "left" and lname == "exclude":
-            if f in self.exclude_files:
-                self.exclude_files.remove(f)
-                self.keep_files.append(f)
-                self.refresh_lists()
+        if direction == "right":
+            # Moving from Left UI (exclude_data) to Right UI (keep_data)
+            # Logic: Remove from exclude_files, Add to keep_files
+            if lname == "exclude_data":
+                 if f in self.exclude_files:
+                     self.exclude_files.remove(f)
+                     self.keep_files.append(f)
+                     self.refresh_lists()
+                     
+        elif direction == "left":
+            # Moving from Right UI (keep_data) to Left UI (exclude_data)
+            # Logic: Remove from keep_files, Add to exclude_files
+            if lname == "keep_data":
+                if f in self.keep_files:
+                    self.keep_files.remove(f)
+                    self.exclude_files.append(f)
+                    self.refresh_lists()
         
         self.selected_item = None
 
