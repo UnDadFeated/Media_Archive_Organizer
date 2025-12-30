@@ -56,6 +56,12 @@ class App(ctk.CTk):
         self.log_text.insert("end", message + "\n")
         self.log_text.see("end")
 
+        # Global Resize Grip
+        self.lbl_grip = ctk.CTkLabel(self, text="◢", text_color="gray", font=("Arial", 16))
+        self.lbl_grip.place(relx=1.0, rely=1.0, anchor="se", x=-2, y=-2)
+        # Ensure grip stays on top
+        self.lbl_grip.lift()
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
