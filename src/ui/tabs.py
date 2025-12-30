@@ -197,7 +197,7 @@ class AIScannerTab(ctk.CTkFrame):
 
         # Preview (Far Right)
         self.preview_frame = ctk.CTkFrame(self.content_frame, width=200)
-        self.preview_frame.grid(row=1, column=3, sticky="ns", padx=(10,0))
+        self.preview_frame.grid(row=1, column=3, sticky="nsew", padx=(10,0))
         self.preview_frame.grid_propagate(False)
         self.content_frame.grid_columnconfigure(3, weight=1) # Expandable
         
