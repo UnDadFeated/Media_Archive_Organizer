@@ -1,4 +1,4 @@
-# Media Archive Organizer (v2.4.0)
+# Media Archive Organizer (v2.4.4)
 
 **Automated Media Organization & AI Cleanup Tool**
 
