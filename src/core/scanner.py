@@ -2,9 +2,6 @@ import os
 import sys
 import cv2
 import mediapipe as mp
-# Explicitly import solutions to avoid 'no attribute' errors in frozen builds
-from mediapipe.python.solutions import face_detection
-from mediapipe.python.solutions import vision
 import threading
 import time
 from typing import List, Callable, Optional
@@ -194,13 +191,22 @@ class ScannerEngine:
         return faces is not None
 
     def _init_mediapipe_face(self):
-        mp_face = mp.solutions.face_detection
-        return mp_face.FaceDetection(model_selection=1, min_detection_confidence=0.20)
+        # MediaPipe Tasks API
+        from mediapipe.tasks import python
+        from mediapipe.tasks.python import vision
+        
+        model_path = self._get_model_path('blaze_face_short_range.tflite')
+        base_options = python.BaseOptions(model_asset_path=model_path)
+        options = vision.FaceDetectorOptions(base_options=base_options, min_detection_confidence=0.5)
+        return vision.FaceDetector.create_from_options(options)
 
     def _detect_face_mediapipe(self, detector, image):
+        import mediapipe as mp
         img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        res = detector.process(img_rgb)
-        return bool(res.detections)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
+        
+        detection_result = detector.detect(mp_image)
+        return len(detection_result.detections) > 0
 
     def _init_animal_detector(self):
         # MediaPipe Tasks
