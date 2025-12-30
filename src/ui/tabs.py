@@ -226,13 +226,13 @@ class AIScannerTab(ctk.CTkFrame):
         
         self.lbl_status = ctk.CTkLabel(self.footer, text="Ready", text_color="gray")
         
-        # Grip
-        self.lbl_grip = ctk.CTkLabel(self.footer, text="◢", text_color="gray", font=("Arial", 16))
+        # Grip (Absolute positioning on main frame)
+        self.lbl_grip = ctk.CTkLabel(self, text="◢", text_color="gray", font=("Arial", 16))
+        self.lbl_grip.place(relx=1.0, rely=1.0, anchor="se", x=-2, y=-2)
         
-        # Repack
+        # Repack footer
         for widget in self.footer.winfo_children(): widget.pack_forget()
 
-        self.lbl_grip.pack(side="right", anchor="se", padx=2)
         self.btn_move_files.pack(side="right", padx=10, pady=5)
         self.btn_cancel.pack(side="right", padx=5)
         self.lbl_status.pack(side="left", padx=10)
