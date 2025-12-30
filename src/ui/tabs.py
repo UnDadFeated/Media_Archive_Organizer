@@ -158,12 +158,7 @@ class AIScannerTab(ctk.CTkFrame):
         self.btn_browse = ctk.CTkButton(self.top_frame, text="...", width=40, command=self.browse_source)
         self.btn_browse.pack(side="left", padx=(0, 10))
         
-        # Hardware Selection
-        self.var_hw = ctk.StringVar(value="CPU")
-        self.rb_cpu = ctk.CTkRadioButton(self.top_frame, text="CPU (MediaPipe)", variable=self.var_hw, value="CPU")
-        self.rb_cpu.pack(side="left", padx=5)
-        self.rb_gpu = ctk.CTkRadioButton(self.top_frame, text="GPU (OpenCV/OpenCL)", variable=self.var_hw, value="GPU")
-        self.rb_gpu.pack(side="left", padx=5)
+        # Hardware Selection - Removed (Default GPU)
         
         # Keep Animals Checkbox
         self.chk_keep_animals = ctk.CTkCheckBox(self.top_frame, text="Keep Animals", width=20, onvalue=True, offvalue=False)
@@ -203,9 +198,15 @@ class AIScannerTab(ctk.CTkFrame):
         # Preview (Far Right)
         self.preview_frame = ctk.CTkFrame(self.content_frame, width=200)
         self.preview_frame.grid(row=1, column=3, sticky="ns", padx=(10,0))
+        self.preview_frame.grid_propagate(False)
+        self.content_frame.grid_columnconfigure(3, weight=1) # Expandable
+        
         ctk.CTkLabel(self.preview_frame, text="PREVIEW").pack(pady=5)
         self.lbl_preview = ctk.CTkLabel(self.preview_frame, text="[No Image]", width=180, height=180, fg_color="#222")
-        self.lbl_preview.pack(pady=10, padx=10)
+        self.lbl_preview.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        self.lbl_preview.bind("<Configure>", self.on_preview_resize)
+        self.current_preview_path = None
 
         # === Footer Actions ===
         self.footer = ctk.CTkFrame(self)
@@ -224,26 +225,22 @@ class AIScannerTab(ctk.CTkFrame):
         self.btn_cancel.pack(side="right", padx=5)
         
         self.lbl_status = ctk.CTkLabel(self.footer, text="Ready", text_color="gray")
-        # Pack this BEFORE the progress bar so it's on left? 
-        # Actually standard pack is tricky with fill. 
-        # Layout: [Status] [Progress ----------] [Stop] [Move]
-        # Current Pack Order:
-        # progress.pack(side="left", fill="x", expand=True) (Takes remaining space)
-        # To make status be strictly left, pack it FIRST side=left.
-        # To make buttons right, pack them FIRST side=right.
         
-        # Let's repack footer.
+        # Grip
+        self.lbl_grip = ctk.CTkLabel(self.footer, text="◢", text_color="gray", font=("Arial", 16))
+        
+        # Repack
         for widget in self.footer.winfo_children(): widget.pack_forget()
 
-        # 1. Right side buttons
+        self.lbl_grip.pack(side="right", anchor="se", padx=2)
         self.btn_move_files.pack(side="right", padx=10, pady=5)
         self.btn_cancel.pack(side="right", padx=5)
-
-        # 2. Left Label
         self.lbl_status.pack(side="left", padx=10)
-        
-        # 3. Fill Progress
         self.progress.pack(side="left", fill="x", expand=True, padx=10)
+
+    def on_preview_resize(self, event):
+        if self.current_preview_path:
+            self.show_preview_image(self.current_preview_path, event.width, event.height)
 
     def browse_source(self):
         path = filedialog.askdirectory()
@@ -279,9 +276,9 @@ class AIScannerTab(ctk.CTkFrame):
                 messagebox.showerror("Error", f"Path is not a directory:\n{path}")
                 return
 
-            use_gpu = (self.var_hw.get() == "GPU")
+            use_gpu = True # Always GPU
             keep_animals = bool(self.chk_keep_animals.get())
-            self.file_logger.info(f"SCAN: Config - GPU: {use_gpu}, Keep Animals: {keep_animals}")
+            self.file_logger.info(f"SCAN: Config - Keep Animals: {keep_animals}")
 
             self.file_logger.debug("SCAN: Updating UI State - Buttons")
             self.btn_scan.configure(state="disabled")
@@ -296,7 +293,7 @@ class AIScannerTab(ctk.CTkFrame):
             self.refresh_lists()
             
             self.file_logger.debug("SCAN: Updating Status Label")
-            self.lbl_status.configure(text=f"Initializing Scan ({'GPU' if use_gpu else 'CPU'})...")
+            self.lbl_status.configure(text=f"Initializing Scan (GPU/OpenCV)...")
             
             self.file_logger.debug("SCAN: Setting Callbacks")
             self.scanner.progress_callback = self.on_progress
@@ -304,7 +301,7 @@ class AIScannerTab(ctk.CTkFrame):
             def run():
                 try:
                     self.file_logger.info("SCAN: Thread Started EXECUTION")
-                    self.scanner.run_scan(path, use_gpu=use_gpu, keep_animals=keep_animals)
+                    self.scanner.run_scan(path, keep_animals=keep_animals)
                     self.file_logger.info("SCAN: Thread Finished Normally")
                     # Finish call must happen on main thread to be safe with Tk
                     self.after(0, self.on_finished)
@@ -369,11 +366,20 @@ class AIScannerTab(ctk.CTkFrame):
 
     def select_file(self, f, idx, list_name):
         self.selected_item = (list_name, idx, f)
+        self.current_preview_path = f
         # Show preview
         try:
+            w = self.lbl_preview.winfo_width()
+            h = self.lbl_preview.winfo_height()
+            if w < 100: w = 200
+            if h < 100: h = 200
+            self.show_preview_image(f, w, h)
+        except: pass
+
+    def show_preview_image(self, f, w, h):
+        try:
             img = Image.open(f)
-            img.thumbnail((180, 180))
-            ctk_img = ctk.CTkImage(light_image=img, dark_image=img, size=img.size)
+            ctk_img = ctk.CTkImage(light_image=img, dark_image=img, size=(w, h))
             self.lbl_preview.configure(image=ctk_img, text="")
         except:
             self.lbl_preview.configure(image=None, text="[Error]")
