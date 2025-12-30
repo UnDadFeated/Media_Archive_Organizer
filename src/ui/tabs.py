@@ -169,7 +169,7 @@ class AIScannerTab(ctk.CTkFrame):
         self.chk_keep_animals = ctk.CTkCheckBox(self.top_frame, text="Keep Animals", width=20, onvalue=True, offvalue=False)
         self.chk_keep_animals.pack(side="left", padx=15)
         
-        self.btn_scan = ctk.CTkButton(self.top_frame, text="Start 'No People' Scan", fg_color="#C2185B", hover_color="#880E4F", command=self.start_scan)
+        self.btn_scan = ctk.CTkButton(self.top_frame, text="START SCAN", fg_color="#2E7D32", hover_color="#1B5E20", command=self.start_scan)
         self.btn_scan.pack(side="right", padx=10)
         
         # === Main Lists ===

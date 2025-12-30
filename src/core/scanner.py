@@ -2,6 +2,9 @@ import os
 import sys
 import cv2
 import mediapipe as mp
+# Explicitly import solutions to avoid 'no attribute' errors in frozen builds
+from mediapipe.python.solutions import face_detection
+from mediapipe.python.solutions import vision
 import threading
 import time
 from typing import List, Callable, Optional
