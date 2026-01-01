@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
 import os
+import shutil
 from PIL import Image
 from core.organizer import OrganizerEngine
 from core.scanner import ScannerEngine
