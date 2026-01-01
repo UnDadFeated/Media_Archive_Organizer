@@ -11,6 +11,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 
+import tkinter as tk
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -18,49 +20,46 @@ class App(ctk.CTk):
         self.logger.info("Initializing Main App Window")
 
         self.title(f"{APP_NAME} {__version__}")
-        self.geometry("1000x700") # Slightly taller to accommodate console
+        self.geometry("1000x700")
         
-        # Use PanedWindow for resizable split
-        # We need to wrap it in a frame or use pack/grid carefully
-        self.paned_window = ctk.CTkPanedWindow(self, orient="vertical")
-        self.paned_window.pack(fill="both", expand=True, padx=10, pady=10)
+        # Use standard tkinter PanedWindow (CustomTkinter doesn't have one)
+        # We set sash relief to flat/ridge for better look
+        self.paned_window = tk.PanedWindow(self, orient="vertical", sashwidth=6, bg="#2b2b2b")
+        self.paned_window.pack(fill="both", expand=True, padx=0, pady=0)
 
         # === Top Pane: Tab View ===
-        # We wrap the tab_view in a frame so minsize works reliably in the paned window
+        # Wrap in a frame to ensure consistent background
         self.top_frame = ctk.CTkFrame(self.paned_window, fg_color="transparent")
         
         self.tab_view = ctk.CTkTabview(self.top_frame)
-        self.tab_view.pack(fill="both", expand=True)
+        self.tab_view.pack(fill="both", expand=True, padx=10, pady=10)
 
         self.tab_org = self.tab_view.add("Media Organizer")
         self.tab_ai = self.tab_view.add("AI Scan")
         self.tab_donate = self.tab_view.add("Donate")
 
         # Init Tabs
-        # Tab 1
         self.org_frame = OrganizerTab(self.tab_org, self.log, self.logger)
         self.org_frame.pack(fill="both", expand=True)
 
-        # Tab 2
         self.ai_frame = AIScannerTab(self.tab_ai, self.log, self.logger)
         self.ai_frame.pack(fill="both", expand=True)
 
-        # Tab 3
         self.donate_frame = DonateTab(self.tab_donate)
         self.donate_frame.pack(fill="both", expand=True)
         
         # Add Top Frame to Paned Window
-        self.paned_window.add(self.top_frame)
+        self.paned_window.add(self.top_frame, minsize=400) # Ensure tabs don't disappear
         
         # === Bottom Pane: Log Area ===
         self.bottom_frame = ctk.CTkFrame(self.paned_window, fg_color="transparent")
         
-        ctk.CTkLabel(self.bottom_frame, text="LOG CONSOLE", font=("Arial", 10, "bold"), text_color="gray", anchor="w").pack(fill="x", pady=(0, 2))
+        ctk.CTkLabel(self.bottom_frame, text="LOG CONSOLE", font=("Arial", 10, "bold"), text_color="gray", anchor="w").pack(fill="x", padx=10, pady=(5, 2))
         
         self.log_text = ctk.CTkTextbox(self.bottom_frame, height=150, font=("Consolas", 12))
-        self.log_text.pack(fill="both", expand=True)
+        self.log_text.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
-        self.paned_window.add(self.bottom_frame)
+        self.paned_window.add(self.bottom_frame, minsize=100)
         
         self.log(f"Welcome to {APP_NAME} {__version__} (Python Edition)")
         self.log("Ready.")
