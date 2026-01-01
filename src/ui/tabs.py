@@ -389,26 +389,46 @@ class AIScannerTab(ctk.CTkFrame):
         except: pass
 
     def show_preview_image(self, f, w, h):
-        try:
-            # Correctly handle PIL image to avoid file locks and improve performance
-            # 1. Use context manager to auto-close file (FIX LOCKING)
-            with Image.open(f) as img:
-                # 2. Convert to RGB if needed (handle RGBA/P issues)
-                if img.mode not in ("RGB", "RGBA"):
-                    img = img.convert("RGB")
+        # Update current path immediately so we know what's "active"
+        self.current_preview_path = f
+        
+        # Clear current image temporarily (visual feedback) or keep old one?
+        # Keeping old one might catch up weirdly, let's show loading or nothing.
+        # self.lbl_preview.configure(image=None, text="Loading...") 
+        # Actually, let's keep it responsive, maybe just start the thread.
+        
+        def _load_worker(path, width, height):
+            try:
+                # 1. Load and process in BACKGROUND THREAD
+                with Image.open(path) as img:
+                    if img.mode not in ("RGB", "RGBA"):
+                        img = img.convert("RGB")
                     
-                # 3. Create a thumbnail IN MEMORY (Performance)
-                # copy() ensures we have data after close (though thumbnail modifies in place, safety first)
-                img_copy = img.copy() 
-                img_copy.thumbnail((w, h), Image.Resampling.LANCZOS)
-                
-                # 4. CTkImage now owns the memory object, not the file
-                ctk_img = ctk.CTkImage(light_image=img_copy, dark_image=img_copy, size=(w, h))
-                self.lbl_preview.configure(image=ctk_img, text="")
-                
+                    img_copy = img.copy()
+                    img_copy.thumbnail((width, height), Image.Resampling.LANCZOS)
+                    
+                    # 2. Schedule UI update on MAIN THREAD
+                    # Pass the processed PIL image to the update function
+                    self.after(0, lambda: self._update_preview_ui(path, img_copy, width, height))
+            except Exception as e:
+                self.file_logger.error(f"PREVIEW LOAD ERROR: {e}")
+                self.after(0, lambda: self.lbl_preview.configure(image=None, text="[Error]"))
+
+        # Start thread
+        threading.Thread(target=_load_worker, args=(f, w, h), daemon=True).start()
+
+    def _update_preview_ui(self, path, pil_img, w, h):
+        # Check race condition: Is this still the file user wants to see?
+        if path != self.current_preview_path:
+            return # User clicked something else in the meantime, discard this result
+            
+        try:
+            # Create CTkImage on Main Thread (safe)
+            ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(w, h))
+            self.lbl_preview.configure(image=ctk_img, text="")
         except Exception as e:
-            self.file_logger.error(f"PREVIEW ERROR: {e}")
-            self.lbl_preview.configure(image=None, text="[Preview Error]")
+            self.file_logger.error(f"PREVIEW UI UPDATE ERROR: {e}")
+            self.lbl_preview.configure(image=None, text="[Error]")
 
     def move_item(self, direction):
         if not self.selected_item: return
