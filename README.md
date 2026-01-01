@@ -1,4 +1,4 @@
-# Media Archive Organizer (v2.6.5)
+# Media Archive Organizer (v2.8.1)
 
 **Automated Media Organization & AI Cleanup Tool**
 
@@ -9,11 +9,22 @@ Media Archive Organizer is a powerful tool designed to help you organize chaos.
 It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Scan** to separate family photos from landscapes, documents, and memes.
 
 **Developer**: [Undadfeated](https://github.com/Undadfeated)
-**Language**: Python (v2.6.5 Update)
+**Language**: Python (v2.8.1 Update)
 
-## New Features (v2.6.5)
+## New Features (v2.8.1)
 - **Hotfix**:
-  - **Scanner Crash Fixed**: Resolved a critical startup crash in the AI Scanner caused by mismatched progress reporting arguments. Scanning is now fully operational with live filename feedback.
+  - **Icon Polish**: Removed white background from the app icon for a cleaner, transparent look on your desktop and taskbar.
+
+## New Features (v2.8.0)
+- **Visual Polish**:
+  - **New App Icon**: A sleek, modern icon with a transparent background.
+  - **Console Clarity**: The "Successfully moved..." confirmation now correctly appears in the visible log console, not just the background log file.
+- **Enhanced AI Scanner**:
+  - **Move Confirmation**: You now get a clear "Successfully moved X files..." message in the console after moving files.
+  - **Refined Feedback**: Fixed UI glitch where moved files might appear to remain in the list until next scan. The list now clears instantly.
+- **Under the Hood**:
+  - **Code Cleanup**: Removed unused code and optimized imports for a cleaner, slightly faster runtime.
+  - **Stability**: Improvements to memory management during bulk operations.
 
 ## New Features (v2.6.4)
 - **Visual Feedback**:

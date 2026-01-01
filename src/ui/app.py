@@ -21,6 +21,11 @@ class App(ctk.CTk):
 
         self.title(f"{APP_NAME} {__version__}")
         self.geometry("1000x700")
+
+        # Set Icon
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'icon.ico')
+        if os.path.exists(icon_path):
+            self.iconbitmap(icon_path)
         
         # Use standard tkinter PanedWindow (CustomTkinter doesn't have one)
         # We set sash relief to flat/ridge for better look

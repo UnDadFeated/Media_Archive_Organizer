@@ -518,15 +518,19 @@ class AIScannerTab(ctk.CTkFrame):
                 error_count += 1
             
         # Final Summary Log
-        self.file_logger.info(f"MOVE COMPLETE: {count} files moved to {dest_dir}")
+        if count > 0:
+            self.log_callback(f"SUCCESS: Successfully moved {count} files to 'No_People' folder.")
+            self.file_logger.info(f"SUCCESS: Successfully moved {count} files to 'No_People' folder.")
+        else:
+            self.log_callback("MOVE FINISHED: No files were moved.")
+            self.file_logger.info("MOVE FINISHED: No files were moved.")
 
         if error_count > 0:
             msg = f"Failed to move {error_count} files (Check logs)."
             messagebox.showwarning("Move Completed with Errors", msg)
 
-        # Clear memory lists only if successful? 
-        # For simple UI, we clear what we *attempted* to move to reset state.
-        self.keep_files.clear()
+        # Clear memory lists and refresh UI to remove "ghost" items
+        self.keep_files.clear() # keep_files held the items we just moved (No People)
         self.refresh_lists()
         self.btn_move_files.configure(state="disabled")
 
