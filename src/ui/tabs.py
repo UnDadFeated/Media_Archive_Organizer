@@ -70,7 +70,7 @@ class OrganizerTab(ctk.CTkFrame):
         self.chk_flat_folders = ctk.CTkSwitch(self.opts_frame, text="Flat Folders (YYYY-MM)")
         self.chk_flat_folders.pack(side="left", padx=(0, 20))
 
-        self.chk_log_output = ctk.CTkCheckBox(self.opts_frame, text="Show Log Output", onvalue=True, offvalue=False)
+        self.chk_log_output = ctk.CTkCheckBox(self.opts_frame, text="Log Output", onvalue=True, offvalue=False)
         self.chk_log_output.select()
         self.chk_log_output.pack(side="left")
         
@@ -147,6 +147,8 @@ class AIScannerTab(ctk.CTkFrame):
         self.file_logger = file_logger
         
         def safe_log(msg):
+            if hasattr(self, 'chk_log_output') and not self.chk_log_output.get():
+                return
             self.after(0, lambda: self.log_callback(msg))
             
         self.scanner = ScannerEngine(safe_log)
@@ -179,6 +181,11 @@ class AIScannerTab(ctk.CTkFrame):
         # Keep Animals Checkbox
         self.chk_keep_animals = ctk.CTkCheckBox(self.top_frame, text="Keep Animals", width=20, onvalue=True, offvalue=False)
         self.chk_keep_animals.pack(side="left", padx=15)
+        
+        # Log Output Checkbox
+        self.chk_log_output = ctk.CTkCheckBox(self.top_frame, text="Log Output", width=20, onvalue=True, offvalue=False)
+        self.chk_log_output.select()
+        self.chk_log_output.pack(side="left", padx=15)
         
         self.btn_scan = ctk.CTkButton(self.top_frame, text="START SCAN", fg_color="#2E7D32", hover_color="#1B5E20", command=self.start_scan)
         self.btn_scan.pack(side="right", padx=10)
