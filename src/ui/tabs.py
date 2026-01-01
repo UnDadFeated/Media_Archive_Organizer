@@ -389,11 +389,25 @@ class AIScannerTab(ctk.CTkFrame):
 
     def show_preview_image(self, f, w, h):
         try:
-            img = Image.open(f)
-            ctk_img = ctk.CTkImage(light_image=img, dark_image=img, size=(w, h))
-            self.lbl_preview.configure(image=ctk_img, text="")
-        except:
-            self.lbl_preview.configure(image=None, text="[Error]")
+            # Correctly handle PIL image to avoid file locks and improve performance
+            # 1. Use context manager to auto-close file (FIX LOCKING)
+            with Image.open(f) as img:
+                # 2. Convert to RGB if needed (handle RGBA/P issues)
+                if img.mode not in ("RGB", "RGBA"):
+                    img = img.convert("RGB")
+                    
+                # 3. Create a thumbnail IN MEMORY (Performance)
+                # copy() ensures we have data after close (though thumbnail modifies in place, safety first)
+                img_copy = img.copy() 
+                img_copy.thumbnail((w, h), Image.Resampling.LANCZOS)
+                
+                # 4. CTkImage now owns the memory object, not the file
+                ctk_img = ctk.CTkImage(light_image=img_copy, dark_image=img_copy, size=(w, h))
+                self.lbl_preview.configure(image=ctk_img, text="")
+                
+        except Exception as e:
+            self.file_logger.error(f"PREVIEW ERROR: {e}")
+            self.lbl_preview.configure(image=None, text="[Preview Error]")
 
     def move_item(self, direction):
         if not self.selected_item: return
@@ -424,15 +438,37 @@ class AIScannerTab(ctk.CTkFrame):
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
             
+        # CLEAR PREVIEW to release any potential locks (just in case)
+        self.lbl_preview.configure(image=None, text="")
+        self.current_preview_path = None
+        
         count = 0
-        for f in self.keep_files:
+        error_count = 0
+        
+        # Snapshot list to avoid modification during iteration
+        files_to_move = list(self.keep_files)
+        
+        for f in files_to_move:
             try:
                 fname = os.path.basename(f)
-                shutil.move(f, os.path.join(dest_dir, fname))
+                target = os.path.join(dest_dir, fname)
+                
+                # Move
+                shutil.move(f, target)
                 count += 1
-            except: pass
+            except Exception as e:
+                self.file_logger.error(f"MOVE ERROR: Failed to move {f} -> {e}")
+                error_count += 1
             
-        messagebox.showinfo("Success", f"Moved {count} files to {dest_dir}")
+        msg = f"Moved {count} files to {dest_dir}"
+        if error_count > 0:
+            msg += f"\n\nFailed to move {error_count} files (Check logs)."
+            messagebox.showwarning("Move Completed with Errors", msg)
+        else:
+            messagebox.showinfo("Success", msg)
+
+        # Clear memory lists only if successful? 
+        # For simple UI, we clear what we *attempted* to move to reset state.
         self.keep_files.clear()
         self.refresh_lists()
         self.btn_move_files.configure(state="disabled")

@@ -1,4 +1,4 @@
-# Media Archive Organizer (v2.5.2)
+# Media Archive Organizer (v2.5.3)
 
 **Automated Media Organization & AI Cleanup Tool**
 
@@ -9,7 +9,12 @@ Media Archive Organizer is a powerful tool designed to help you organize chaos.
 It sorts your photos and videos into a structured `Year/Year-Month` format and uses **AI Scan** to separate family photos from landscapes, documents, and memes.
 
 **Developer**: [Undadfeated](https://github.com/Undadfeated)
-**Language**: Python (v2.5.2 Update)
+**Language**: Python (v2.5.3 Update)
+
+## New Features (v2.5.3)
+- **Bug Fixes**:
+  - **Fixed File Move**: Resolved an issue where files wouldn't move from the AI Scanner tab because they were "locked" by the preview window.
+  - **Performance**: Drastically improved UI responsiveness when clicking through large photos (now loads optimized thumbnails instead of full-res images).
 
 ## New Features (v2.5.2)
 - **Smart Filename Parsing**:
