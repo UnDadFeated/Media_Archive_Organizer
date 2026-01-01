@@ -502,16 +502,20 @@ class AIScannerTab(ctk.CTkFrame):
                 # Move
                 shutil.move(f, target)
                 count += 1
+                
+                # Real-time Log (No Popup)
+                self.file_logger.info(f"Moved: {fname} -> {dest_dir}")
+                
             except Exception as e:
                 self.file_logger.error(f"MOVE ERROR: Failed to move {f} -> {e}")
                 error_count += 1
             
-        msg = f"Moved {count} files to {dest_dir}"
+        # Final Summary Log
+        self.file_logger.info(f"MOVE COMPLETE: {count} files moved to {dest_dir}")
+
         if error_count > 0:
-            msg += f"\n\nFailed to move {error_count} files (Check logs)."
+            msg = f"Failed to move {error_count} files (Check logs)."
             messagebox.showwarning("Move Completed with Errors", msg)
-        else:
-            messagebox.showinfo("Success", msg)
 
         # Clear memory lists only if successful? 
         # For simple UI, we clear what we *attempted* to move to reset state.

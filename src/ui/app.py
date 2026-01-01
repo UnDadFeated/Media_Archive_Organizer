@@ -54,15 +54,42 @@ class App(ctk.CTk):
         # === Bottom Pane: Log Area ===
         self.bottom_frame = ctk.CTkFrame(self.paned_window, fg_color="transparent")
         
-        ctk.CTkLabel(self.bottom_frame, text="LOG CONSOLE", font=("Arial", 10, "bold"), text_color="gray", anchor="w").pack(fill="x", padx=10, pady=(5, 2))
+        # Visual Grip Area
+        self.grip_frame = ctk.CTkFrame(self.bottom_frame, fg_color="transparent", height=25)
+        self.grip_frame.pack(fill="x", padx=0, pady=(0, 0))
+        
+        # Arrows Label
+        self.lbl_grip = ctk.CTkLabel(self.grip_frame, text="▲", font=("Arial", 14, "bold"), text_color="gray")
+        self.lbl_grip.pack(pady=(2,0))
+        
+        # Separator Line
+        self.sep = ctk.CTkFrame(self.grip_frame, height=2, fg_color="#404040")
+        self.sep.pack(fill="x", padx=20, pady=(2, 5))
+
+        # Console Label
+        ctk.CTkLabel(self.bottom_frame, text="LOG CONSOLE", font=("Arial", 10, "bold"), text_color="gray", anchor="w").pack(fill="x", padx=10, pady=(0, 2))
         
         self.log_text = ctk.CTkTextbox(self.bottom_frame, height=150, font=("Consolas", 12))
         self.log_text.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
         self.paned_window.add(self.bottom_frame, minsize=100)
         
+        # Bind resize event to update arrows
+        self.bottom_frame.bind("<Configure>", self.update_grip_arrows)
+        
         self.log(f"Welcome to {APP_NAME} {__version__} (Python Edition)")
         self.log("Ready.")
+
+    def update_grip_arrows(self, event):
+        # Heuristic: If height is small (near minsize), show UP arrow to indicate "Pull Me Up"
+        # If height is large, show DOWN arrow to indicate "Push Me Down"
+        try:
+            h = event.height
+            if h < 160: # Threshold for "collapsed" state
+                self.lbl_grip.configure(text="▲")
+            else:
+                self.lbl_grip.configure(text="▼")
+        except: pass
 
     def log(self, message):
         self.log_text.insert("end", message + "\n")
