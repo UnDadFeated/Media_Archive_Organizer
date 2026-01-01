@@ -34,10 +34,38 @@ class OrganizerEngine:
         except Exception:
             pass
             
-        # Fallback to file creation/modification (Standard for videos/webms if no other lib)
+        # 2. Try Filename Parsing (Smart Regex)
+        # Looks for patterns like:
+        # 20231225_..., 2023-12-25..., IMG_20231225..., VID-20231225...
+        # Signal-2023-12-25..., WP_20231225...
+        import re
+        filename = os.path.basename(file_path)
+        
+        # Regex: Matches YYYY followed by MM followed by DD (with optional separators)
+        # We look for 4 digits (1900-2099), then 2 digits, then 2 digits.
+        patterns = [
+            r"(\d{4})[-_]?(\d{2})[-_]?(\d{2})", # Standard YYYY-MM-DD or YYYYMMDD
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, filename)
+            if match:
+                try:
+                    y, m, d = match.groups()
+                    # Validate ranges
+                    if 1900 <= int(y) <= 2100 and 1 <= int(m) <= 12 and 1 <= int(d) <= 31:
+                        # Success
+                        return datetime(int(y), int(m), int(d))
+                except:
+                    continue
+
+        # 3. Fallback to file creation/modification (Standard for videos/webms if no other lib)
         try:
             timestamp = os.path.getmtime(file_path)
-            return datetime.fromtimestamp(timestamp)
+            # Check if timestamp is reasonable (e.g. not 1970)
+            dt = datetime.fromtimestamp(timestamp)
+            if dt.year < 1980: return None # Junk date
+            return dt
         except:
             return None
 
