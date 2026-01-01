@@ -108,11 +108,6 @@ class ScannerEngine:
             
             f_path, image = item
             
-            # Real-time Logging
-            try:
-                self.logger(f"Scanning: {os.path.basename(f_path)}")
-            except: pass
-            
             # 1. Face Detect (OpenCV)
             has_face = False
             try:
@@ -132,13 +127,41 @@ class ScannerEngine:
                          if self._detect_animal(animal_engine, image):
                              is_excluded = True
 
+            fname_base = os.path.basename(f_path)
+            
             if is_excluded:
+                # "Excluded" from Move list = KEEP (People/Animals)
+                # Wait, wait. logic revision.
+                # Project goals: "Separate family photos (Left/Keep) from Landscapes (Right/Move)"
+                # "Excluded" usually means "Not in the main set". 
+                # Let's check where `scan_result` goes.
+                # is_excluded -> self.excluded_files.append(f_path)
+                # no_people_files -> self.no_people_files.append(f_path)
+                
+                # RE-VERIFYING LOGIC:
+                # Old code: 
+                # if has_face: is_excluded = True
+                # if is_excluded: self.excluded_files.append
+                # else: self.no_people_files.append
+                
+                # UI: Left List = "KEEP (People/Animals)" -> driven by... self.keep_files? 
+                # Let's look at `tabs.py` usage of these lists.
+                # In tabs.py `update_lists`: 
+                # self.keep_files = scanner.excluded_files (Wait, "excluded" from removal?)
+                # self.exclude_files = scanner.no_people_files (To be moved?)
+                
+                # So `excluded_files` = PEOPLE (Keep).
+                # `no_people_files` = LANDSCAPE (Move).
+                
                 self.excluded_files.append(f_path)
+                # Log NOTHING for Keep files (User req: "show names ... of files flagged to be moved")
             else:
                 self.no_people_files.append(f_path)
+                # Log MOVE candidates
+                self.logger(f"[MOVE] >> {fname_base}")
                 
             processed_count += 1
-            self._report_progress(processed_count, total, start_time)
+            self._report_progress(processed_count, total, start_time, fname_base)
 
         # Cleanup
         if face_engine: 

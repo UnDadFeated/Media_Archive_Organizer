@@ -366,14 +366,14 @@ class AIScannerTab(ctk.CTkFrame):
         self.lbl_status.configure(text="Scan Complete.")
         self.progress.set(1.0)
 
-    def on_progress(self, current, total, eta):
+    def on_progress(self, current, total, eta, filename=""):
         # We invoke 'after' to update UI safely
-        self.after(0, lambda: self.update_progress_ui(current, total, eta))
+        self.after(0, lambda: self.update_progress_ui(current, total, eta, filename))
 
-    def update_progress_ui(self, current, total, eta):
+    def update_progress_ui(self, current, total, eta, filename=""):
         val = current / max(total, 1)
         self.progress.set(val)
-        self.lbl_status.configure(text=f"Scanning... {current}/{total} (ETA: {int(eta)}s)")
+        self.lbl_status.configure(text=f"Scanning... {current}/{total} ({int(eta)}s) - {filename}")
 
     def refresh_lists(self):
         for widget in self.list_keep.winfo_children(): widget.destroy()
