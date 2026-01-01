@@ -221,8 +221,10 @@ class AIScannerTab(ctk.CTkFrame):
         self.lbl_preview = ctk.CTkLabel(self.preview_frame, text="[No Image]", width=180, height=180, fg_color="#222")
         self.lbl_preview.pack(fill="both", expand=True, padx=10, pady=10)
         
-        self.lbl_preview.bind("<Configure>", self.on_preview_resize)
+        # Bind to FRAME not label to avoid jitter loops
+        self.preview_frame.bind("<Configure>", self.on_preview_resize)
         self.current_preview_path = None
+        self._resize_timer = None
 
         # === Footer Actions ===
         self.footer = ctk.CTkFrame(self)
@@ -251,8 +253,22 @@ class AIScannerTab(ctk.CTkFrame):
         self.progress.pack(side="left", fill="x", expand=True, padx=10)
 
     def on_preview_resize(self, event):
+        # Debounce: Cancel previous timer if it exists
+        if self._resize_timer:
+            self.after_cancel(self._resize_timer)
+            
+        # Schedule new update in 200ms
+        self._resize_timer = self.after(200, lambda: self._delayed_resize(event.width, event.height))
+
+    def _delayed_resize(self, w, h):
+        # Adjust for padding (frame width != image width)
+        img_w = w - 20 # 10px padding each side
+        img_h = h - 30 # approx padding + label text space
+        
+        if img_w < 50 or img_h < 50: return # Too small
+        
         if self.current_preview_path:
-            self.show_preview_image(self.current_preview_path, event.width, event.height)
+            self.show_preview_image(self.current_preview_path, img_w, img_h)
 
     def browse_source(self):
         path = filedialog.askdirectory()
