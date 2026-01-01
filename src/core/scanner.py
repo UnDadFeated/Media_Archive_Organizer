@@ -108,6 +108,11 @@ class ScannerEngine:
             
             f_path, image = item
             
+            # Real-time Logging
+            try:
+                self.logger(f"Scanning: {os.path.basename(f_path)}")
+            except: pass
+            
             # 1. Face Detect (OpenCV)
             has_face = False
             try:

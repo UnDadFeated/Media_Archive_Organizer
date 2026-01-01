@@ -18,16 +18,19 @@ class App(ctk.CTk):
         self.logger.info("Initializing Main App Window")
 
         self.title(f"{APP_NAME} {__version__}")
-        self.geometry("1000x550")
+        self.geometry("1000x700") # Slightly taller to accommodate console
         
-        # Grid Layout
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=0) # Log Area option
-        self.grid_columnconfigure(0, weight=1)
+        # Use PanedWindow for resizable split
+        # We need to wrap it in a frame or use pack/grid carefully
+        self.paned_window = ctk.CTkPanedWindow(self, orient="vertical")
+        self.paned_window.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Tab View
-        self.tab_view = ctk.CTkTabview(self)
-        self.tab_view.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+        # === Top Pane: Tab View ===
+        # We wrap the tab_view in a frame so minsize works reliably in the paned window
+        self.top_frame = ctk.CTkFrame(self.paned_window, fg_color="transparent")
+        
+        self.tab_view = ctk.CTkTabview(self.top_frame)
+        self.tab_view.pack(fill="both", expand=True)
 
         self.tab_org = self.tab_view.add("Media Organizer")
         self.tab_ai = self.tab_view.add("AI Scan")
@@ -46,17 +49,25 @@ class App(ctk.CTk):
         self.donate_frame = DonateTab(self.tab_donate)
         self.donate_frame.pack(fill="both", expand=True)
         
-        # Log Area (Bottom) - Shared
-        self.log_text = ctk.CTkTextbox(self, height=100, font=("Consolas", 12))
-        self.log_text.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
+        # Add Top Frame to Paned Window
+        self.paned_window.add(self.top_frame)
+        
+        # === Bottom Pane: Log Area ===
+        self.bottom_frame = ctk.CTkFrame(self.paned_window, fg_color="transparent")
+        
+        ctk.CTkLabel(self.bottom_frame, text="LOG CONSOLE", font=("Arial", 10, "bold"), text_color="gray", anchor="w").pack(fill="x", pady=(0, 2))
+        
+        self.log_text = ctk.CTkTextbox(self.bottom_frame, height=150, font=("Consolas", 12))
+        self.log_text.pack(fill="both", expand=True)
+        
+        self.paned_window.add(self.bottom_frame)
+        
         self.log(f"Welcome to {APP_NAME} {__version__} (Python Edition)")
         self.log("Ready.")
 
     def log(self, message):
         self.log_text.insert("end", message + "\n")
         self.log_text.see("end")
-
-
 
 if __name__ == "__main__":
     app = App()
