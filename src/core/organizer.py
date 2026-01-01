@@ -116,16 +116,19 @@ class OrganizerEngine:
                         new_name = f"{base}_{int(datetime.now().timestamp())}{extension}"
                         target_path = os.path.join(target_dir, new_name)
 
+                rel_target_path = os.path.join(year, month, os.path.basename(target_path))
+                
                 if not dry_run:
                     os.makedirs(target_dir, exist_ok=True)
                     try:
                         shutil.move(full_path, target_path)
                         files_moved += 1
+                        self.logger(f"[MOVE] \"{file}\" -> \"{rel_target_path}\"")
                     except Exception as e:
                         self.logger(f"Error moving {file}: {e}")
                 else:
                     files_moved += 1
-                    # self.logger(f"[DRY] Would move {file} to {year}/{month}")
+                    self.logger(f"[DRY RUN] \"{file}\" -> \"{rel_target_path}\"")
 
         self.logger(f"Done. Moved: {files_moved}. Duplicates: {duplicates_found}.")
 
