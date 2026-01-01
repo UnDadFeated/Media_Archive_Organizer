@@ -109,12 +109,27 @@ class OrganizerEngine:
                     target_dir = os.path.join(source_dir, year, month_name)
                     rel_base = os.path.join(year, month_name)
                 
-                # New Filename: yyyy-mm-dd_OriginalName.ext
-                # But check if already has prefix to avoid double prefixing
-                if file.startswith(date_prefix + "_"):
-                     new_filename = file
+                # Logic: Check if file already has a YYYY-MM-DD prefix
+                # Regex for YYYY-MM-DD_ at start
+                import re
+                match = re.match(r'^(\d{4}-\d{2}-\d{2})_', file)
+                
+                if match:
+                    existing_date = match.group(1)
+                    if existing_date == date_prefix:
+                        # It matches our calculated date. Keep it as is (avoid double prefix)
+                        new_filename = file
+                    else:
+                        # Mismatch! The file has a date prefix, but it's WRONG (according to our best scan).
+                        # Strip the old prefix and apply the new one.
+                        # Original name without prefix
+                        original_name = file[len(match.group(0)):]
+                        new_filename = f"{date_prefix}_{original_name}"
+                        if not dry_run:
+                             self.logger(f"[RENAME FIX] Found incorrect date {existing_date}, fixing to {date_prefix}")
                 else:
-                     new_filename = f"{date_prefix}_{file}"
+                    # No prefix, add it.
+                    new_filename = f"{date_prefix}_{file}"
 
                 target_path = os.path.join(target_dir, new_filename)
                 
