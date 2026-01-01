@@ -221,15 +221,15 @@ class ScannerEngine:
     # Legacy method wrapper if needed, but we replaced run_scan completely.
 
 
-    def _report_progress(self, idx, total, start_time):
-        if idx % 5 == 0 or idx == total - 1:
-            elapsed = time.time() - start_time
-            if idx > 0:
-                avg_time = elapsed / idx
-                eta = avg_time * (total - idx)
-            else:
-                eta = 0
-            
-            if self.progress_callback:
-                self.progress_callback(idx + 1, total, eta)
+    def _report_progress(self, current, total, start_time, filename=""):
+        if not self.progress_callback: return
+        
+        elapsed = time.time() - start_time
+        if current > 0:
+            rate = current / elapsed
+            remaining = (total - current) / rate if rate > 0 else 0
+            # Callback expects (current, total, remaining, filename)
+            self.progress_callback(current, total, remaining, filename)
+        else:
+            self.progress_callback(current, total, 0, filename)
 
