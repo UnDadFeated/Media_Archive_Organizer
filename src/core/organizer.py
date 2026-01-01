@@ -17,8 +17,8 @@ class OrganizerEngine:
         """
         Extract date taken from EXIF or fallback to file modified time.
         """
+        # Try Piexif for images
         try:
-            # 1. Try Piexif
             exif_dict = piexif.load(file_path)
             # DateTimeOriginal is 36867
             if 36867 in exif_dict.get("Exif", {}):
@@ -34,9 +34,10 @@ class OrganizerEngine:
         except Exception:
             pass
             
-        # Fallback to file creation/modification
+        # Fallback to file creation/modification (Standard for videos/webms if no other lib)
         try:
-            return datetime.fromtimestamp(os.path.getmtime(file_path))
+            timestamp = os.path.getmtime(file_path)
+            return datetime.fromtimestamp(timestamp)
         except:
             return None
 
@@ -49,13 +50,13 @@ class OrganizerEngine:
                     count += 1
         return count
 
-    def organize(self, source_dir: str, dry_run: bool = True, progress_callback=None):
+    def organize(self, source_dir: str, dry_run: bool = True, use_flat_folders: bool = False, progress_callback=None):
         if not os.path.exists(source_dir):
             self.logger("Source directory does not exist.")
             return
 
         self.cancel_flag = False
-        valid_exts = {'.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi'}
+        valid_exts = {'.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi', '.webm', '.mkv', '.gif', '.bmp', '.tiff'}
         
         self.logger("Counting files...")
         if progress_callback: progress_callback(0, 0, "Counting files...")
@@ -63,7 +64,8 @@ class OrganizerEngine:
         total_files = self.count_files(source_dir, valid_exts)
         self.logger(f"Found {total_files} media files.")
         
-        self.logger(f"Starting Organization (Dry Run: {dry_run})...")
+        folder_style = "Flat (YYYY-MM)" if use_flat_folders else "Nested (YYYY/YYYY-MM)"
+        self.logger(f"Starting Organization (Dry Run: {dry_run}, Style: {folder_style})...")
         
         files_moved = 0
         files_processed = 0
@@ -92,31 +94,49 @@ class OrganizerEngine:
                     self.logger(f"Skipping {file}: Could not determine date.")
                     continue
                 
-                # Target Structure: Source/YYYY/YYYY-MM/
+                # Format Data
                 year = str(date_obj.year)
-                month = f"{date_obj.year}-{date_obj.month:02d}"
+                month_name = f"{date_obj.year}-{date_obj.month:02d}"
+                date_prefix = f"{date_obj.year}-{date_obj.month:02d}-{date_obj.day:02d}"
+
+                # Target Structure
+                if use_flat_folders:
+                    # Flat: Source/YYYY-MM/
+                    target_dir = os.path.join(source_dir, month_name)
+                    rel_base = month_name
+                else:
+                    # Nested: Source/YYYY/YYYY-MM/
+                    target_dir = os.path.join(source_dir, year, month_name)
+                    rel_base = os.path.join(year, month_name)
                 
-                target_dir = os.path.join(source_dir, year, month)
-                target_path = os.path.join(target_dir, file)
+                # New Filename: yyyy-mm-dd_OriginalName.ext
+                # But check if already has prefix to avoid double prefixing
+                if file.startswith(date_prefix + "_"):
+                     new_filename = file
+                else:
+                     new_filename = f"{date_prefix}_{file}"
+
+                target_path = os.path.join(target_dir, new_filename)
                 
-                # Check if it's already there
+                # Check if it's already there (path match)
                 if full_path == target_path:
                     continue
                 
                 # Deduplication / Collision
                 if os.path.exists(target_path):
-                    # Simple size check for now
+                    # Simple size check
                     if os.path.getsize(full_path) == os.path.getsize(target_path):
-                        self.logger(f"[DUPLICATE] {file} exists in {month}. Skipping.")
+                        self.logger(f"[DUPLICATE] {file} exists in {rel_base}. Skipping.")
                         duplicates_found += 1
                         continue
                     else:
-                        # Name collision, rename
-                        base, extension = os.path.splitext(file)
-                        new_name = f"{base}_{int(datetime.now().timestamp())}{extension}"
-                        target_path = os.path.join(target_dir, new_name)
+                        # Name collision, rename append timestamp
+                        base, extension = os.path.splitext(new_filename)
+                        new_name_collision = f"{base}_{int(datetime.now().timestamp())}{extension}"
+                        target_path = os.path.join(target_dir, new_name_collision)
+                        new_filename = new_name_collision
 
-                rel_target_path = os.path.join(year, month, os.path.basename(target_path))
+                rel_target_path = os.path.join(rel_base, new_filename)
                 
                 if not dry_run:
                     os.makedirs(target_dir, exist_ok=True)

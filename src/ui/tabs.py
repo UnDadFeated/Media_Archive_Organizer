@@ -66,6 +66,9 @@ class OrganizerTab(ctk.CTkFrame):
         self.chk_dry_run.select()
         self.chk_dry_run.pack(side="left", padx=(0, 20))
 
+        self.chk_flat_folders = ctk.CTkSwitch(self.opts_frame, text="Flat Folders (YYYY-MM)")
+        self.chk_flat_folders.pack(side="left", padx=(0, 20))
+
         self.chk_log_output = ctk.CTkCheckBox(self.opts_frame, text="Show Log Output", onvalue=True, offvalue=False)
         self.chk_log_output.select()
         self.chk_log_output.pack(side="left")
@@ -106,6 +109,8 @@ class OrganizerTab(ctk.CTkFrame):
             return
             
         dry_run = bool(self.chk_dry_run.get())
+        use_flat_folders = bool(self.chk_flat_folders.get())
+        
         self.btn_start.configure(state="disabled")
         self.btn_stop.configure(state="normal")
         self.progress_bar.set(0)
@@ -117,7 +122,7 @@ class OrganizerTab(ctk.CTkFrame):
 
         def run():
             try:
-                self.engine.organize(path, dry_run=dry_run, progress_callback=on_progress)
+                self.engine.organize(path, dry_run=dry_run, use_flat_folders=use_flat_folders, progress_callback=on_progress)
             finally:
                 self.after(0, self.on_finished)
             
