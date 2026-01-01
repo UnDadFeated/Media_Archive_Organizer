@@ -397,10 +397,14 @@ class AIScannerTab(ctk.CTkFrame):
         self.current_preview_path = f
         # Show preview
         try:
-            w = self.lbl_preview.winfo_width()
-            h = self.lbl_preview.winfo_height()
-            if w < 100: w = 200
-            if h < 100: h = 200
+            # Use FRAME size for consistency, minus padding
+            w = self.preview_frame.winfo_width() - 20
+            h = self.preview_frame.winfo_height() - 30
+            
+            # Fallback if uninitialized
+            if w < 50: w = 200
+            if h < 50: h = 200
+            
             self.show_preview_image(f, w, h)
         except: pass
 
@@ -423,9 +427,12 @@ class AIScannerTab(ctk.CTkFrame):
                     img_copy = img.copy()
                     img_copy.thumbnail((width, height), Image.Resampling.LANCZOS)
                     
+                    # Get actual dimensions after resize to PREVENT STRETCHING
+                    real_w, real_h = img_copy.size
+                    
                     # 2. Schedule UI update on MAIN THREAD
-                    # Pass the processed PIL image to the update function
-                    self.after(0, lambda: self._update_preview_ui(path, img_copy, width, height))
+                    # Pass the processed PIL image AND logic dimensions
+                    self.after(0, lambda: self._update_preview_ui(path, img_copy, real_w, real_h))
             except Exception as e:
                 self.file_logger.error(f"PREVIEW LOAD ERROR: {e}")
                 self.after(0, lambda: self.lbl_preview.configure(image=None, text="[Error]"))
