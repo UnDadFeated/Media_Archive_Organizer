@@ -1,5 +1,7 @@
 # Media Archive Organizer (v2.8.2)
 
+<img src="src/assets/icon.png" align="right" width="140" alt="Media Archive Organizer Icon">
+
 **Automated Media Organization & AI Cleanup Tool**
 
 
