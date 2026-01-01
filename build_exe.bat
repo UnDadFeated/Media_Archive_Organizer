@@ -1,4 +1,4 @@
 @echo off
-echo Building Media Archive Organizer v2.4.5...
-py -3.11 -m PyInstaller --noconfirm --onefile --windowed --name "MediaArchiveOrganizer_v2.4.5" --hidden-import=piexif --collect-all mediapipe --collect-all customtkinter --add-data "src;src" launcher.py
+echo Building Media Archive Organizer v2.4.6...
+py -3.11 -m PyInstaller --noconfirm --onefile --windowed --name "MediaArchiveOrganizer_v2.4.6" --hidden-import=piexif --collect-all mediapipe --collect-all customtkinter --add-data "src;src" launcher.py
 echo Build Complete. EXE is in dist/
