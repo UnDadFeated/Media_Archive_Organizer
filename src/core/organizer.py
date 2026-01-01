@@ -58,7 +58,7 @@ class OrganizerEngine:
         valid_exts = {'.jpg', '.jpeg', '.png', '.mp4', '.mov', '.avi'}
         
         self.logger("Counting files...")
-        if progress_callback: progress_callback(0, 0)
+        if progress_callback: progress_callback(0, 0, "Counting files...")
         
         total_files = self.count_files(source_dir, valid_exts)
         self.logger(f"Found {total_files} media files.")
@@ -83,7 +83,7 @@ class OrganizerEngine:
                     
                 files_processed += 1
                 if progress_callback:
-                    progress_callback(files_processed, total_files)
+                    progress_callback(files_processed, total_files, file)
 
                 full_path = os.path.join(root, file)
                 date_obj = self.get_date_taken(full_path)

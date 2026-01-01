@@ -16,6 +16,8 @@ class OrganizerTab(ctk.CTkFrame):
         self.file_logger = file_logger
         
         def safe_log(msg):
+            if hasattr(self, 'chk_log_output') and not self.chk_log_output.get():
+                return
             self.after(0, lambda: self.log_callback(msg))
             
         self.engine = OrganizerEngine(safe_log)
@@ -59,6 +61,10 @@ class OrganizerTab(ctk.CTkFrame):
         self.chk_dry_run = ctk.CTkSwitch(self.frame_action, text="Dry Run (Simulation)")
         self.chk_dry_run.select()
         self.chk_dry_run.pack(anchor="w", padx=20, pady=10)
+
+        self.chk_log_output = ctk.CTkCheckBox(self.frame_action, text="Show Log Output", onvalue=True, offvalue=False)
+        self.chk_log_output.select()
+        self.chk_log_output.pack(anchor="w", padx=20, pady=5)
         
         ctk.CTkLabel(self.frame_action, text="Recommmended for first run.", text_color="gray", font=("Arial", 11)).pack(anchor="w", padx=55, pady=0)
 
@@ -101,9 +107,9 @@ class OrganizerTab(ctk.CTkFrame):
         self.progress_bar.set(0)
         self.lbl_progress.configure(text="Scanning files...")
         
-        def on_progress(current, total):
+        def on_progress(current, total, filename=""):
             # Thread-safe update
-            self.after(0, lambda: self.update_progress(current, total))
+            self.after(0, lambda: self.update_progress(current, total, filename))
 
         def run():
             try:
@@ -118,10 +124,10 @@ class OrganizerTab(ctk.CTkFrame):
         self.btn_stop.configure(state="disabled")
         self.lbl_progress.configure(text="Finished.")
 
-    def update_progress(self, current, total):
+    def update_progress(self, current, total, filename=""):
         if total > 0:
             self.progress_bar.set(current / total)
-            self.lbl_progress.configure(text=f"Organizing... {current}/{total}")
+            self.lbl_progress.configure(text=f"Organizing... {current}/{total} ({filename})")
 
 
 class AIScannerTab(ctk.CTkFrame):

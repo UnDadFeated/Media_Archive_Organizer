@@ -1,2 +1,2 @@
-__version__ = "v2.4.4"
+__version__ = "v2.4.5"
 APP_NAME = "Media Archive Organizer"

@@ -58,7 +58,7 @@ class App(ctk.CTk):
 
         # Global Resize Grip
         self.lbl_grip = ctk.CTkLabel(self, text="◢", text_color="gray", font=("Arial", 16))
-        self.lbl_grip.place(relx=1.0, rely=1.0, anchor="se", x=-2, y=-2)
+        self.lbl_grip.place(relx=1.0, rely=1.0, anchor="se", x=0, y=0)
         # Ensure grip stays on top
         self.lbl_grip.lift()
 
