@@ -58,13 +58,17 @@ class OrganizerTab(ctk.CTkFrame):
 
         ctk.CTkLabel(self.frame_action, text="EXECUTION MODE", font=("Arial", 12, "bold"), text_color="gray").pack(anchor="w", padx=10, pady=(10,0))
         
-        self.chk_dry_run = ctk.CTkSwitch(self.frame_action, text="Dry Run (Simulation)")
-        self.chk_dry_run.select()
-        self.chk_dry_run.pack(anchor="w", padx=20, pady=10)
+        # Options Frame (Horizontal)
+        self.opts_frame = ctk.CTkFrame(self.frame_action, fg_color="transparent")
+        self.opts_frame.pack(anchor="w", padx=20, pady=10)
 
-        self.chk_log_output = ctk.CTkCheckBox(self.frame_action, text="Show Log Output", onvalue=True, offvalue=False)
+        self.chk_dry_run = ctk.CTkSwitch(self.opts_frame, text="Dry Run (Simulation)")
+        self.chk_dry_run.select()
+        self.chk_dry_run.pack(side="left", padx=(0, 20))
+
+        self.chk_log_output = ctk.CTkCheckBox(self.opts_frame, text="Show Log Output", onvalue=True, offvalue=False)
         self.chk_log_output.select()
-        self.chk_log_output.pack(anchor="w", padx=20, pady=5)
+        self.chk_log_output.pack(side="left")
         
         ctk.CTkLabel(self.frame_action, text="Recommmended for first run.", text_color="gray", font=("Arial", 11)).pack(anchor="w", padx=55, pady=0)
 
